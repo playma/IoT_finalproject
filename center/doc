@@ -1,0 +1,8 @@
+窗簾
+http://localhost:8080/api/curtain/on
+http://localhost:8080/api/curtain/off
+電燈 (1可以改成 2,3)
+http://localhost:8080/api/light/1/on
+http://localhost:8080/api/light/1/off
+亮度
+http://localhost:8080/api/brightness

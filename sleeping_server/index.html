@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Sleep</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script>
+    $(document).ready(function(){
+        $(".fallAsleep").click(function(){
+            $.ajax({url: "/api/fallAsleep", success: function(result){
+                $("#result").html(JSON.stringify(result));
+            }});
+        });
+
+        $(".getUp").click(function(){
+            $.ajax({url: "/api/getUp", success: function(result){
+                $("#result").html(JSON.stringify(result));
+            }});
+        });
+
+        $(".data").click(function(){
+            $.ajax({url: "/api/data", success: function(result){
+                $("#result").html(JSON.stringify(result));
+            }});
+        });
+
+        $(".delete").click(function(){
+            $.ajax({url: "/api/delSleepData", success: function(result){
+                $("#result").html(JSON.stringify(result));
+            }});
+        });
+    });
+  </script>
+</head>
+
+<body>
+  <button class="fallAsleep">睡著</button>
+  <button class="getUp">起床</button>
+  <button>起床尿尿</button>
+  <button class="data">睡眠記錄</button>
+  </br>
+  <button class="delete">刪除所有紀錄</button>
+  <div id="result"></div>
+</body>
+
+</html>
