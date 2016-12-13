@@ -67,8 +67,10 @@ api.get('/brightness', function (req, res) {
   })
 })
 
-api.post('/pressure/:switch', function (req, res) {
+api.post('/pressure', function (req, res) {
+  res.send(req);
   //http://127.0.0.1:8080/api/light/0/on
+  /*
   request.get(`${config.host}:${port}/api/light/0/${req.params.switch}`, function (error, response, body) {
     if (!error && response.statusCode == 200) {
       res.send(body)
@@ -76,6 +78,7 @@ api.post('/pressure/:switch', function (req, res) {
       res.send(error)
     }
   })
+  */
 })
 
 app.use('/api', api);
