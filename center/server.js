@@ -68,7 +68,7 @@ api.get('/brightness', function (req, res) {
 })
 
 api.post('/pressure', function (req, res) {
-  res.send(req);
+  res.send(req.body);
   //http://127.0.0.1:8080/api/light/0/on
   /*
   request.get(`${config.host}:${port}/api/light/0/${req.params.switch}`, function (error, response, body) {
