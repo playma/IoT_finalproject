@@ -6,3 +6,13 @@ http://localhost:8080/api/light/1/on
 http://localhost:8080/api/light/1/off
 亮度
 http://localhost:8080/api/brightness
+
+
+App api
+
+起床
+http://localhost:8080/api/getUp
+睡覺了
+http://localhost:8080/api/goToSleep
+上廁所
+http://localhost:8080/api/lavatories
