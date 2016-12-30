@@ -30,7 +30,7 @@ api.get('/', function (req, res) {
 })
 
 api.get('/getSleepData', function (req, res) {
-  request.get(`${config.host}:${config.sleeping_port}`, function (error, response, body) {
+  request.get(`${config.host}:${config.sleeping_port}/api/data`, function (error, response, body) {
     if (!error && response.statusCode == 200) {
       res.send(body)
     } else {
@@ -76,8 +76,8 @@ api.get('/curtain/:switch', function (req, res) {
 
 api.get('/light/:light/:switch', function (req, res) {
   light = config.light[req.params.light];
-
-  console.log(`${config.post_host}/digital/${light}/${req.params.switch}`)
+  // 0:藍燈, 1:黃燈(臥室燈), 2:黃燈(廁所燈)
+  // console.log(`${config.post_host}/digital/${light}/${req.params.switch}`)
   request.get(`${config.post_host}/digital/${light}/${req.params.switch}`, function (error, response, body) {
     if (!error && response.statusCode == 200) {
       res.send(body)
@@ -87,53 +87,74 @@ api.get('/light/:light/:switch', function (req, res) {
   })
 })
 
+/**********************************/
+/* API for app
+/**********************************/
+
 api.get('/getUp', function (req, res) {
+  getUp();
+  console.log('###### App call getUp API ######')
+  res.send('getUp API')
+  /*
   console.log(`${config.host}:${port}/api/curtain/1`)
   request.get(`${config.host}:${port}/api/curtain/1`, function (error, response, body) {
     if (!error && response.statusCode == 200) {
+      console.log('###### App call getUp API ######')
       getUp();
-      res.send('起床，打開窗簾')
+      res.send('getUp API')
     } else {
       res.send(error)
     }
   })
+  */
 })
 
 api.get('/goToSleep', function (req, res) {
+  goToSleep();
+  console.log('###### App call goToSleep API ######')
+  res.send('goToSleep API')
+  /*
   console.log(`${config.host}:${port}/api/curtain/0`)
   request.get(`${config.host}:${port}/api/curtain/0`, function (error, response, body) {
     if (!error && response.statusCode == 200) {
+      console.log('###### App call goToSleep API ######')
       goToSleep();
-      res.send('睡覺了，關上窗簾')
+      res.send('goToSleep API')
     } else {
       res.send(error)
     }
-  })
+  })*/
 })
 
 api.get('/lavatories', function (req, res) {
   console.log(`${config.host}:${port}/api/light/0/1`)
   request.get(`${config.host}:${port}/api/light/0/1`, function (error, response, body) {
     if (!error && response.statusCode == 200) {
-      res.send('上廁所，打開燈')
+      console.log('###### App call lavatories API ######')
+      res.send('lavatories API')
     } else {
       res.send(error)
     }
   })
 })
 
-function turnOnlight() {
+/**********************************/
+/* method
+/**********************************/
+
+function turnOnlight(light) {
   return new Promise(function(resolve, reject) {
-    request.get(`${config.host}:${port}/api/light/0/1`, function (error, response, body) {
-      console.log('## Light is on.');
+    request.get(`${config.host}:${port}/api/light/${light}/1`, function (error, response, body) {
+      console.log(`## Light${light} is on`);
       resolve(body);
     })
   });
 }
 
-function turnOfflight() {
+function turnOfflight(light) {
   return new Promise(function(resolve, reject) {
-    request.get(`${config.host}:${port}/api/light/0/0`, function (error, response, body) {
+    request.get(`${config.host}:${port}/api/${light}/0/0`, function (error, response, body) {
+      console.log(`## Light${light} is off`);
       resolve(body);
     })
   });
@@ -142,6 +163,7 @@ function turnOfflight() {
 function getPressure() {
   return new Promise(function(resolve, reject) {
     request.get(`${config.host}:${port}/api/pressure`, function (error, response, body) {
+      console.log(`## Pressure is ${body}`);
       resolve(body);
     })
   });
@@ -150,6 +172,7 @@ function getPressure() {
 function getBrightness() {
   return new Promise(function(resolve, reject) {
     request.get(`${config.host}:${port}/api/brightness`, function (error, response, body) {
+      console.log(`## Brightness is ${body}`);
       resolve(body);
     })
   });
@@ -158,6 +181,7 @@ function getBrightness() {
 function openCurtain() {
   return new Promise(function(resolve, reject) {
     request.get(`${config.host}:${port}/api/curtain/1`, function (error, response, body) {
+      console.log(`## Curtain is open`);
       resolve(body);
     })
   });
@@ -166,34 +190,14 @@ function openCurtain() {
 function closeCurtain() {
   return new Promise(function(resolve, reject) {
     request.get(`${config.host}:${port}/api/curtain/0`, function (error, response, body) {
+      console.log(`## Curtain is close`);
       resolve(body);
     })
   });
 }
 
-function getUp() {
-  openCurtain().then(function() {
-    getBrightness().then(function(res) {
-      if(res > 350) {
-        console.log(res + '太暗了，開燈')
-        turnOnlight();
-      } else {
-        console.log(res + '燈光正常')
-      }
-    });
-  });
-}
-
-function goToSleep() {
-  closeCurtain().then(function() {
-    turnOfflight();
-    setMonitor();
-  });
-}
-
 function closeMonitor() {
     clearInterval(monitor);
-    monitor = 0;
 }
 
 function setMonitor() {
@@ -203,23 +207,48 @@ function setMonitor() {
     getPressure().then(function(res) {
       if(res < 880) {
         //有壓力
-        console.log(res + '有壓力')
-        console.log('Turn on the light');
-        light_now = true;
-        turnOnlight().then(function() {
+        console.log('## Detection Pressure')
+        turnOnlight(2).then(function() {
           light_now = true;
         });
       } else {
-        console.log(res + '正常')
+        console.log('## Detection no Pressure')
         if(light_now) {
           console.log('Turn off the light');
-          turnOfflight().then(function() {
+          turnOfflight(2).then(function() {
             light_now = false;
           });
         }
       }
     });
   }, 2000);
+}
+
+/**********************************/
+/* 邏輯
+/**********************************/
+
+function getUp() {
+  openCurtain().then(function() {
+    getBrightness().then(function(res) {
+      if(res > 350) {
+        console.log('## Too dark, need open the light')
+        turnOnlight(1);
+      } else {
+        console.log('## Light enough')
+      }
+    });
+  });
+}
+
+function goToSleep() {
+  closeCurtain().then(function() {
+    turnOfflight(0);
+    setTimeout(function() {
+      turnOfflight(1)
+    }, 10000);
+    setMonitor();
+  });
 }
 
 app.use('/api', api);

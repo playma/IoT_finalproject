@@ -8,6 +8,6 @@ module.exports = {
   'brightness_port': 1234,  //亮度感測器
   'pressure_port': 1239, //壓力感測器
   'curtain_port': 1235, //窗簾
-  'light': [12, 14, 15],
+  'light': [12, 6, 1],
   'sleeping_port': 8081 //睡眠手環
 }
